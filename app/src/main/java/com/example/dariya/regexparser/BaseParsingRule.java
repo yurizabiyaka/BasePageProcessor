@@ -11,7 +11,7 @@ public abstract class BaseParsingRule {
     private int FIndex;
     public BaseParsingRule(int aMyIndex)
     { FIndex = aMyIndex; }
-    public abstract List<List<String>> Apply(String aText);
+    public abstract List<String> Apply(String aText);
     int getIndex()
     { return FIndex; }
 }
