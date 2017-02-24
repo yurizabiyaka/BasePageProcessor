@@ -22,7 +22,7 @@ public class RegexMatchRule extends BaseParsingRule {
         Pattern p = Pattern.compile(FRegex, Pattern.DOTALL | Pattern.MULTILINE);
         Matcher m = p.matcher(aText);
         while(m.find()) // for all results:
-            for(int i=0; i<=m.groupCount(); i++) // add all groups:
+            for(int i=1; i<=m.groupCount(); i++) // add all groups:
                 result.add(m.group(i));
         return result;
     }

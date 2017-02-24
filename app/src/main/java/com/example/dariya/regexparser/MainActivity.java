@@ -5,22 +5,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.SparseArray;
 import android.view.View;
 import android.widget.EditText;
 
 import com.tree.TreeNode;
-import com.tree.TreeNodeIter;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
-import java.util.List;
-import java.util.regex.*;
 
 public class MainActivity extends AppCompatActivity implements Handler.Callback , UiHanldeProvider, OkHttpClientProvider {
     // UI:
@@ -39,24 +32,24 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         SetTaskFinished(aMsg.arg1);
         switch (aMsg.what) {
             case BaseRunnableResourseLoader.LoadResultConstants.LOAD_SUCCESS :
-                TreeNode<Object> data = new TreeNode<Object>(new String((String)aMsg.obj));
-                TreeNode<Object> result0 = ApplyRuleTree(LoadRuleTree("Find1"),data);
-                StringBuilder s1 = new StringBuilder();
+                RuleTreeResultsBuilder sesSel = new RuleTreeResultsBuilder(LoadRuleTree("Find1"),(String)aMsg.obj);
+//                if(sesSel.N().S(0,0).S(2,0).S(4,0).Count(5)==0)
+//                    maMainText.append("Empty res"+"\n");
+//                String ss1=sesSel.N().S(0,0).S(2,0).S(3,0).R();
+//                maMainText.append(ss1+"\n");
+//                int rcount = sesSel.N().S(0,0).S(2,0).C(3);
+//                maMainText.append(""+rcount+"\n");
                 StringBuilder s2 = new StringBuilder();
-                StringBuilder s3 = new StringBuilder();
-                TreeNode<Object> result1 = SelectResult(0,0,s1,data);
-                SelectResult(1,0,s2,result1);
-                maMainText.append(s2.toString()+"\n");
-//                TreeNode<String> treeRoot = getSet1();
-//                String filtredText = DoRegEx((String)aMsg.obj);
-//                maMainText.append("Succ Message: " + filtredText+"\n");
-//                TreeNode<String> treeRoot = getSet1();
-//                List<TreeNode<String>> children = treeRoot.children;
-//                for (TreeNode<String> node : children) {
-//                    String indent = "\n"+node.getLevel()+" : ";
-//                    maMainText.append(indent + node.data);
-//                }
-//                maMainText.append("\n [3] :" + treeRoot.children.get(3).data);
+                for(int i=0; i<sesSel.N().S(0,0).Count(2); i++ ) {
+                    maMainText.append("ЗАКУПКА " + i + ":\n\n");
+                    List<String> lstr3 = sesSel.N().S(0, 0).S(2, i).All(3);
+                    s2.setLength(0);
+                    for (String s : lstr3) {
+                        s2.append(s);
+                        s2.append("\n\n");
+                    }
+                    maMainText.append(s2.toString() + "\n");
+                }
                 break;
             case BaseRunnableResourseLoader.LoadResultConstants.LOAD_FAIL:
                 maMainText.append("Fail Message: " + (String)aMsg.obj+"\n");
@@ -77,67 +70,11 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 
     public TreeNode<BaseParsingRule>  getSet1() {
         TreeNode<BaseParsingRule> root0 = new TreeNode<BaseParsingRule>(new RegexFindRule(0,"<html>.*</html>"));
-        TreeNode<BaseParsingRule> root1 = root0.addChild(new RegexFindRule(1,"<p\\sclass=\"allRecords\">.*?<strong>(.*?)</strong>.*?</p>"));
+        TreeNode<BaseParsingRule> root1 = root0.addChild(new RegexMatchRule(1,"<p\\sclass=\"allRecords\">.*?<strong>(.*?)</strong>.*?</p>"));
 //        TreeNode<IndexedRegex> root = new TreeNode<IndexedRegex>(new IndexedRegex(0,"<(?:\"[^\"]*\"['\"]*|'[^']*'['\"]*|[^'\">])+>"));
         TreeNode<BaseParsingRule> next2 = root0.addChild(new RegexFindRule(2,"<div class=\"registerBox registerBoxBank margBtm20\">.*?(?=<div class=\"registerBox registerBoxBank margBtm20\">|<div class=\"margBtm50\">)"));
         TreeNode<BaseParsingRule> next3 = next2.addChild(new RegexMatchRule(3,"<a[^>]*?(?=href)href=\"(.*?)\""));
         return root0;
-    }
-
-    // Regex indexed to be placed in a tree:
-    // for a tree of
-    //     ____RI0____
-    //     |    |    |
-    //   RI1   RI2   RI3
-    //
-    //  result would be:
-    //
-    //    ___________RI0________________
-    //   |                 |            |
-    //  String A          String B     String C
-    //  |   |   |         |   |   |       etc.
-    // RI1 RI2  RI3      RI1 RI2  RI3
-    //  |   |   |  |      etc.
-    // S1  S2   S31 S32    etc.
-
-    TreeNode<Object> ApplyRuleTree(TreeNode<BaseParsingRule> aRuleRoot, TreeNode<Object> aDataRoot){
-        TreeNode<Object> ruleRoot = aDataRoot.addChild(new Integer(aRuleRoot.data.getIndex()));
-        // apply self:
-        List<String> selfResult = aRuleRoot.data.Apply((String)aDataRoot.data);
-        // add the next result for self:
-        for(String oneSelfRes : selfResult){
-            TreeNode<Object> child = ruleRoot.addChild(oneSelfRes);
-            // go deeper:
-            // for the child add as a child branches of the rule's children:
-            for(TreeNode<BaseParsingRule> childRule : aRuleRoot.children) {
-                // apply the child regex:
-                TreeNode<Object> childRoot = ApplyRuleTree(childRule, child);
-                // add results:
-                child.addChild(childRoot);
-            }
-        }
-        return ruleRoot;
-    }
-
-    // Selects in the rule branch of rule index aRuleInd (if the branch exists)
-    // it's result under index aResultInd (if such a result is present),
-    // and place it into aRes (otherwise aRes are given a null value),
-    // and return in aResultRoot its result tree, if any exits (otherwise NULL)
-    TreeNode<Object> SelectResult(int aRuleInd, int aResultInd, StringBuilder aRes, TreeNode<Object> aResultRoot){
-        if(aResultRoot.children == null) {
-            aRes = null; // in case a property that may cause an unexpected launch
-            return null;
-        }
-        for(TreeNode<Object> child : aResultRoot.children)
-            if(child.data instanceof Integer) // short-circuiting logical AND and unboxing
-                if((Integer)(child.data) == aRuleInd)
-                if(!child.children.isEmpty() && child.children.size() > aResultInd){
-                    aRes.append((String)child.children.get(aResultInd).data); // that is String
-                    // that is a tree :
-                    return child.children.get(aResultInd).children.isEmpty() ? null : child.children.get(aResultInd).children.get(0);
-                }
-        aRes = null; // in case a property that may cause an unexpected launch
-        return null;
     }
 
     // Backgroung task message handler:
