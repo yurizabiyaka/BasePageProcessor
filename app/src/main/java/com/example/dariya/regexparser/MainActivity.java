@@ -12,10 +12,11 @@ import com.tree.TreeNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.OkHttpClient;
 
-public class MainActivity extends AppCompatActivity implements Handler.Callback , UiHanldeProvider, OkHttpClientProvider {
+public class MainActivity extends AppCompatActivity implements Handler.Callback , UiHanldeProvider, OkHttpClientProvider, RuleTreeProvider {
     // UI:
     private EditText maMainText;
 
@@ -32,23 +33,14 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         SetTaskFinished(aMsg.arg1);
         switch (aMsg.what) {
             case BaseRunnableResourseLoader.LoadResultConstants.LOAD_SUCCESS :
-                RuleTreeResultsBuilder sesSel = new RuleTreeResultsBuilder(LoadRuleTree("Find1"),(String)aMsg.obj);
-//                if(sesSel.N().S(0,0).S(2,0).S(4,0).Count(5)==0)
-//                    maMainText.append("Empty res"+"\n");
-//                String ss1=sesSel.N().S(0,0).S(2,0).S(3,0).R();
-//                maMainText.append(ss1+"\n");
-//                int rcount = sesSel.N().S(0,0).S(2,0).C(3);
-//                maMainText.append(""+rcount+"\n");
-                StringBuilder s2 = new StringBuilder();
-                for(int i=0; i<sesSel.N().S(0,0).Count(2); i++ ) {
-                    maMainText.append("ЗАКУПКА " + i + ":\n\n");
-                    List<String> lstr3 = sesSel.N().S(0, 0).S(2, i).All(3);
-                    s2.setLength(0);
-                    for (String s : lstr3) {
-                        s2.append(s);
-                        s2.append("\n\n");
-                    }
-                    maMainText.append(s2.toString() + "\n");
+                Set1ResultTransformer rtSet1 = new Set1ResultTransformer((String)aMsg.obj, this);
+                Map<String, Object> resSet1 = rtSet1.Transform();
+                maMainText.append("Total Results: "+resSet1.get("total")+"\n");
+                List<List<String>> listList = (List<List<String>>)resSet1.get("ulrList");
+                for(int i=0; i<(Integer)(resSet1.get("count")); i++){
+                    maMainText.append("ЗАКУПКА "+i+"\n\n");
+                    for(String s : listList.get(i))
+                        maMainText.append("URL : " + s +"\n");
                 }
                 break;
             case BaseRunnableResourseLoader.LoadResultConstants.LOAD_FAIL:
@@ -64,9 +56,6 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
     }
 
 
-    public TreeNode<BaseParsingRule> LoadRuleTree(String aName){
-        return getSet1();
-    }
 
     public TreeNode<BaseParsingRule>  getSet1() {
         TreeNode<BaseParsingRule> root0 = new TreeNode<BaseParsingRule>(new RegexFindRule(0,"<html>.*</html>"));
@@ -75,6 +64,14 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         TreeNode<BaseParsingRule> next2 = root0.addChild(new RegexFindRule(2,"<div class=\"registerBox registerBoxBank margBtm20\">.*?(?=<div class=\"registerBox registerBoxBank margBtm20\">|<div class=\"margBtm50\">)"));
         TreeNode<BaseParsingRule> next3 = next2.addChild(new RegexMatchRule(3,"<a[^>]*?(?=href)href=\"(.*?)\""));
         return root0;
+    }
+
+    // Rule Loader Interface:
+    @Override
+    public TreeNode<BaseParsingRule> LoadRuleTree(String aName){
+        if("Set1".equals(aName))
+            return getSet1();
+        return new TreeNode<BaseParsingRule>(new RegexFindRule(0,"<html>.*</html>"));
     }
 
     // Backgroung task message handler:
