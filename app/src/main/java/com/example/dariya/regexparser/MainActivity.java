@@ -11,6 +11,7 @@ import android.widget.EditText;
 import com.tree.TreeNode;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -33,14 +34,18 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         SetTaskFinished(aMsg.arg1);
         switch (aMsg.what) {
             case BaseRunnableResourseLoader.LoadResultConstants.LOAD_SUCCESS :
-                Set1ResultTransformer rtSet1 = new Set1ResultTransformer((String)aMsg.obj, this);
-                Map<String, Object> resSet1 = rtSet1.Transform();
-                maMainText.append("Total Results: "+resSet1.get("total")+"\n");
-                List<List<String>> listList = (List<List<String>>)resSet1.get("ulrList");
-                for(int i=0; i<(Integer)(resSet1.get("count")); i++){
-                    maMainText.append("ЗАКУПКА "+i+"\n\n");
-                    for(String s : listList.get(i))
-                        maMainText.append("URL : " + s +"\n");
+                Set2ResultTransformer rtSet2 = new Set2ResultTransformer((String)aMsg.obj, this);
+                Map<String, Object> resSet2 = rtSet2.Transform();
+                maMainText.append("Total Results: "+resSet2.get("total")+"\n");
+                maMainText.append("Current page: "+resSet2.get("pagenum")+"\n");
+                maMainText.append("Out of pages: "+resSet2.get("pagestotal")+"\n");
+                List<Map<String,String>> list = (List<Map<String,String>>)resSet2.get("expenseList");
+                int i=0;
+                for(Map<String,String> map3 : list){
+                    maMainText.append("\n\nЗАКУПКА "+i+"\n");
+                    StringBuilder sb = new StringBuilder();
+                    printMap(((List<Map<String,String>>) resSet2.get("expenseList")).get(i++),sb);
+                    maMainText.append(sb.toString());
                 }
                 break;
             case BaseRunnableResourseLoader.LoadResultConstants.LOAD_FAIL:
@@ -55,6 +60,14 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         return true;
     }
 
+    public static void printMap(Map mp, StringBuilder sb) {
+        Iterator it = mp.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            sb.append("\n" + pair.getKey() + " : " + pair.getValue());
+            it.remove(); // avoids a ConcurrentModificationException
+        }
+    }
 
 
     public TreeNode<BaseParsingRule>  getSet1() {
@@ -66,11 +79,29 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         return root0;
     }
 
+    public TreeNode<BaseParsingRule>  getSet2() {
+        TreeNode<BaseParsingRule> root0 = new TreeNode<BaseParsingRule>(new RegexFindRule(0,"<html>.*</html>"));
+        TreeNode<BaseParsingRule> next1 = root0.addChild(new RegexMatchRule(1,"<div class=\"paginator greyBox\">(.*?)(?=<div class=\"registerBox registerBoxBank margBtm20\">)"));
+        TreeNode<BaseParsingRule> next11 = next1.addChild(new RegexMatchRule(10,"<p\\sclass=\"allRecords\">.*?<strong>(.*?)</strong>.*?</p>"));
+        TreeNode<BaseParsingRule> next12 = next1.addChild(new RegexMatchRule(11,"<li class=\"currentPage\">(.*?)</li>"));
+        TreeNode<BaseParsingRule> next13 = next1.addChild(new RegexMatchRule(12,"<li class=\"rightArrow\">[^0-9]*(\\d+)"));
+
+        TreeNode<BaseParsingRule> next2 = root0.addChild(new RegexFindRule(2,"<div class=\"registerBox registerBoxBank margBtm20\">.*?(?=<div class=\"registerBox registerBoxBank margBtm20\">|<div class=\"margBtm50\">)"));
+        TreeNode<BaseParsingRule> next21 = next2.addChild(new RegexMatchRule(3,"<td class=\"tenderTd\">[A-Za-z<>/\\s]+<strong>\\s*([\\w[:blank:]:(),]+)\\s*</strong>.*?<span class=\"[\\w\\s]+\">([\\w\\x20:(),]+)/.*?<strong>\\s*([\\d[:blank:]]+)\\s*<span>"));
+        TreeNode<BaseParsingRule> next22 = next2.addChild(new RegexMatchRule(4,"<td class=\"descriptTenderTd\">.*(№\\s\\d+).*Заказчик:\\s*<ul>\\s*<li>\\s*<a.*?>([\\w\\s\",.()№:-]+)</a>.*?<dd>(.*?)</dd>.*?</td>"));
+        TreeNode<BaseParsingRule> next23 = next2.addChild(new RegexMatchRule(5,"<a[^>]*?(?=href)href=\"(.*?/[Pp]rint-?[Ff]orm/.*?)\""));
+        TreeNode<BaseParsingRule> next24 = next2.addChild(new RegexMatchRule(6,"<a[^>]*?(?=href)href=\"([^\"]*?common-info.*?)\""));
+        TreeNode<BaseParsingRule> next25 = next2.addChild(new RegexMatchRule(7,"<a[^>]*?(?=href)href=\"([^\"]*?documents.*?)\""));
+        return root0;
+    }
+
     // Rule Loader Interface:
     @Override
     public TreeNode<BaseParsingRule> LoadRuleTree(String aName){
         if("Set1".equals(aName))
             return getSet1();
+        if("Set2".equals(aName))
+            return getSet2();
         return new TreeNode<BaseParsingRule>(new RegexFindRule(0,"<html>.*</html>"));
     }
 

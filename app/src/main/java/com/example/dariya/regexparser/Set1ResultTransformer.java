@@ -16,6 +16,17 @@ public class Set1ResultTransformer extends BaseTreeResultTransformer {
         super(aData, aProvider.LoadRuleTree("Set1"));
     }
 
+    /*
+    for a tree like:
+    public TreeNode<BaseParsingRule>  getSet1() {
+        TreeNode<BaseParsingRule> root0 = new TreeNode<BaseParsingRule>(new RegexFindRule(0,"<html>.*</html>"));
+        TreeNode<BaseParsingRule> root1 = root0.addChild(new RegexMatchRule(1,"<p\\sclass=\"allRecords\">.*?<strong>(.*?)</strong>.*?</p>"));
+        TreeNode<BaseParsingRule> next2 = root0.addChild(new RegexFindRule(2,"<div class=\"registerBox registerBoxBank margBtm20\">.*?(?=<div class=\"registerBox registerBoxBank margBtm20\">|<div class=\"margBtm50\">)"));
+        TreeNode<BaseParsingRule> next3 = next2.addChild(new RegexMatchRule(3,"<a[^>]*?(?=href)href=\"(.*?)\""));
+        return root0;
+    }
+
+     */
     @Override
     public Map<String, Object> Transform() {
         Map<String, Object> result = new HashMap<String, Object>();
