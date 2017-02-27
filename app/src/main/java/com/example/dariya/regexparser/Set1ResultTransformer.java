@@ -12,8 +12,13 @@ import java.util.Map;
  */
 
 public class Set1ResultTransformer extends BaseTreeResultTransformer {
-    Set1ResultTransformer(String aData, RuleTreeProvider aProvider){
-        super(aData, aProvider.LoadRuleTree("Set1"));
+
+//    Set1ResultTransformer(RuleTreeProvider aProvider){
+//        super(aProvider.LoadRuleTree("Set1"));
+//    }
+
+    Set1ResultTransformer(TreeNode<BaseParsingRule> aRuleTree){
+        super(aRuleTree);
     }
 
     /*

@@ -1,8 +1,13 @@
 package com.example.dariya.regexparser;
 
+import android.app.Activity;
 import android.os.Handler;
 
+import com.tree.TreeNode;
+
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -16,12 +21,13 @@ class WebUrlLoader extends BaseRunnableResourseLoader {
     String FUri;
     String FAnswer;
     private OkHttpClient FClient;
-    private Handler FHandle;
+    private BaseTreeResultTransformer FTransformer;
 
-    WebUrlLoader(Handler aUiHandle, String aUri, OkHttpClient aClient){
-        super(aUiHandle);
+    WebUrlLoader(Activity activity, PageLoaderCallbackInterface callbackInterface, String aUri, OkHttpClient aClient, BaseTreeResultTransformer aTransformer){
+        super(activity, callbackInterface);
         FUri = aUri;
         FClient = aClient;
+        FTransformer = aTransformer;
     }
 
     @Override
@@ -34,11 +40,16 @@ class WebUrlLoader extends BaseRunnableResourseLoader {
             if (!response.isSuccessful()) {
                 FAnswer = "Fail[" + "]: " + response;
                 response.close();
-                this.SendFailMessage(FAnswer);
+                SendFailMessage(FAnswer);
             }
             else {
                 FAnswer = response.body().string(); // this closes the stream
-                this.SendSuccesResult(FAnswer);
+                if(null != FTransformer) {
+                    Map<String, Object> resultSet = FTransformer.setSourceData(FAnswer).Transform();
+                    this.SendSuccesResult(resultSet);
+                }
+                else
+                    this.SendSuccesResult((Map<String, Object>) new HashMap<String, Object>().put("resultCode", new String("noTransformer")));
             }
         } catch(IOException ex){
             FAnswer = "Fail["+"]: "+ex.toString();

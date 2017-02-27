@@ -7,5 +7,6 @@ import com.tree.TreeNode;
  */
 
 public interface RuleTreeProvider {
-    public TreeNode<BaseParsingRule> LoadRuleTree(String aName);
+//    public TreeNode<BaseParsingRule> LoadRuleTree(final String aTag);
+    BaseTreeResultTransformer getTransformer(final String aTag);
 }

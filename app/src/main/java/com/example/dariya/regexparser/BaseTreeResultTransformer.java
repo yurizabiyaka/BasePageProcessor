@@ -9,11 +9,25 @@ import java.util.Map;
  */
 
 public abstract class BaseTreeResultTransformer {
+
+    private TreeNode<BaseParsingRule> FRuleTree;
     private RuleTreeResultsBuilder  FResult;
-    BaseTreeResultTransformer(String aData, TreeNode<BaseParsingRule> aRuleTree){
-        FResult = new RuleTreeResultsBuilder(aRuleTree, aData);
+    private String FSourceData="";
+
+    BaseTreeResultTransformer(TreeNode<BaseParsingRule> aRuleTree){
+        FRuleTree = aRuleTree;
+//        FResult = new RuleTreeResultsBuilder(aRuleTree, aData);
+    }
+//    BaseTreeResultTransformer(String aData, TreeNode<BaseParsingRule> aRuleTree){
+//        FResult = new RuleTreeResultsBuilder(aRuleTree, aData);
+//    }
+    BaseTreeResultTransformer setSourceData(String aData){
+        FSourceData = aData;
+        return this;
     }
     RuleTreeResultsBuilder getResult(){
+        if(null == FResult)
+            FResult = new RuleTreeResultsBuilder(FRuleTree, FSourceData);
         return FResult;
     }
     public abstract Map<String, Object> Transform();

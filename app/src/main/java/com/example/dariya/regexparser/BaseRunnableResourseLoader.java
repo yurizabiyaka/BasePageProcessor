@@ -1,5 +1,6 @@
 package com.example.dariya.regexparser;
 
+import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 
@@ -11,13 +12,15 @@ import java.util.Map;
 
 public abstract class BaseRunnableResourseLoader implements Runnable{
 
-    public abstract class LoadResultConstants {
-        public static final int LOAD_SUCCESS = 0;
-        public static final int LOAD_FAIL = 1;
-        public static final int LOAD_TIMEOUT = 2;
-    }
+    private Activity FActivity; // Activity , which ui thread is used to run callback on
+    private PageLoaderCallbackInterface FCallbackInterface; // the callback
 
-    Handler FHandle; // we send messages to it
+//    public abstract class LoadResultConstants {
+//        public static final int LOAD_SUCCESS = 0;
+//        public static final int LOAD_FAIL = 1;
+//        public static final int LOAD_TIMEOUT = 2;
+//    }
+
     long FTaskId;
 
     public long getId(){
@@ -26,23 +29,48 @@ public abstract class BaseRunnableResourseLoader implements Runnable{
     public void setId(long aTaskId){
         FTaskId = aTaskId;
     }
-    public BaseRunnableResourseLoader(Handler aHandle){
-        FHandle = aHandle;
+    public BaseRunnableResourseLoader(Activity uiActivity, PageLoaderCallbackInterface callbackInterface){
+        FActivity = uiActivity;
+        FCallbackInterface = callbackInterface;
     }
-    public BaseRunnableResourseLoader(Handler aHandle, long aTaskId){
-        FHandle = aHandle;
-        setId(aTaskId);
+    Activity getUiActivity(){
+        return FActivity;
     }
-    public void SendSuccesResult(String aResult){
-        Message msgForHandler = FHandle.obtainMessage(BaseRunnableResourseLoader.LoadResultConstants.LOAD_SUCCESS, (int)this.getId(), 0, aResult);
-        FHandle.sendMessage(msgForHandler);
+    PageLoaderCallbackInterface getCallbackInterface(){
+        return FCallbackInterface;
     }
-    public void SendFailMessage(String aFailMessage){
-        Message msgForHandler = FHandle.obtainMessage(BaseRunnableResourseLoader.LoadResultConstants.LOAD_FAIL, (int)this.getId(), 0, aFailMessage);
-        FHandle.sendMessage(msgForHandler);
+
+//    Handler FHandle; // we send messages to it
+
+//    public BaseRunnableResourseLoader(Handler aHandle){
+//        FHandle = aHandle;
+//    }
+//    public BaseRunnableResourseLoader(Handler aHandle, long aTaskId){
+//        FHandle = aHandle;
+//        setId(aTaskId);
+//    }
+    public void SendSuccesResult(final Map<String, Object> aResultSet){
+//        Message msgForHandler = FHandle.obtainMessage(BaseRunnableResourseLoader.LoadResultConstants.LOAD_SUCCESS, (int)this.getId(), 0, aResult);
+//        FHandle.sendMessage(msgForHandler);
+        getUiActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getCallbackInterface().onSuccess(aResultSet);
+            }
+        });
     }
-    public void SendTimeoutEvent(){
-        Message msgForHandler = FHandle.obtainMessage(BaseRunnableResourseLoader.LoadResultConstants.LOAD_TIMEOUT, (int)this.getId(), 0);
-        FHandle.sendMessage(msgForHandler);
+    public void SendFailMessage(final String aFailMessage){
+//        Message msgForHandler = FHandle.obtainMessage(BaseRunnableResourseLoader.LoadResultConstants.LOAD_FAIL, (int)this.getId(), 0, aFailMessage);
+//        FHandle.sendMessage(msgForHandler);
+        getUiActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getCallbackInterface().onFail(aFailMessage);
+            }
+        });
     }
+//    public void SendTimeoutEvent(){
+//        Message msgForHandler = FHandle.obtainMessage(BaseRunnableResourseLoader.LoadResultConstants.LOAD_TIMEOUT, (int)this.getId(), 0);
+//        FHandle.sendMessage(msgForHandler);
+//    }
 }

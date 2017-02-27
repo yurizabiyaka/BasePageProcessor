@@ -1,5 +1,7 @@
 package com.example.dariya.regexparser;
 
+import com.tree.TreeNode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,9 +12,14 @@ import java.util.Map;
  */
 
 public class Set2ResultTransformer extends BaseTreeResultTransformer {
-    Set2ResultTransformer(String aData, RuleTreeProvider aProvider){
-        super(aData, aProvider.LoadRuleTree("Set2"));
+
+//    Set2ResultTransformer(RuleTreeProvider aProvider){
+//        super(aProvider.LoadRuleTree("Set2"));
+//    }
+    Set2ResultTransformer(TreeNode<BaseParsingRule> aRuleTree){
+        super(aRuleTree);
     }
+
     @Override
     public Map<String, Object> Transform() {
         Map<String, Object> result = new HashMap<String, Object>();
