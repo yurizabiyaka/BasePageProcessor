@@ -49,10 +49,10 @@ class WebUrlLoader extends BaseRunnableResourseLoader {
                     this.SendSuccesResult(resultSet);
                 }
                 else
-                    this.SendSuccesResult((Map<String, Object>) new HashMap<String, Object>().put("resultCode", new String("noTransformer")));
+                    this.SendFailMessage("No Result transformer for the result ["+getId()+"](\n"+FAnswer+"\n)");
             }
         } catch(IOException ex){
-            FAnswer = "Fail["+"]: "+ex.toString();
+            FAnswer = "Fail ["+getId()+"](\n"+ex.toString()+"\n)";
             this.SendFailMessage(FAnswer);
         }
     }

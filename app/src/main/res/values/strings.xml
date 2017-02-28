@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">RegexParser</string>
+    <string name="ExpenseSearchUrl">http://zakupki.gov.ru/epz/order/quicksearch/search_eis.html</string>
+    <string name="ExpenseSearchUrlTokenPageNumber">pageNumber</string>
 </resources>

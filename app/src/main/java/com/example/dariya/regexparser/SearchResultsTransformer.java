@@ -11,12 +11,12 @@ import java.util.Map;
  * Created by Dariya on 26.02.2017.
  */
 
-public class Set2ResultTransformer extends BaseTreeResultTransformer {
+public class SearchResultsTransformer extends BaseTreeResultTransformer {
 
-//    Set2ResultTransformer(RuleTreeProvider aProvider){
+//    SearchResultsTransformer(RuleTreeProvider aProvider){
 //        super(aProvider.LoadRuleTree("Set2"));
 //    }
-    Set2ResultTransformer(TreeNode<BaseParsingRule> aRuleTree){
+    SearchResultsTransformer(TreeNode<BaseParsingRule> aRuleTree){
         super(aRuleTree);
     }
 

@@ -49,28 +49,42 @@ public abstract class BaseRunnableResourseLoader implements Runnable{
 //        FHandle = aHandle;
 //        setId(aTaskId);
 //    }
+
     public void SendSuccesResult(final Map<String, Object> aResultSet){
 //        Message msgForHandler = FHandle.obtainMessage(BaseRunnableResourseLoader.LoadResultConstants.LOAD_SUCCESS, (int)this.getId(), 0, aResult);
 //        FHandle.sendMessage(msgForHandler);
-        getUiActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                getCallbackInterface().onSuccess(aResultSet);
-            }
-        });
+        if(null != getUiActivity())
+            getUiActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    CallSuccess(aResultSet);
+                }
+            });
+        else CallSuccess(aResultSet);
     }
     public void SendFailMessage(final String aFailMessage){
 //        Message msgForHandler = FHandle.obtainMessage(BaseRunnableResourseLoader.LoadResultConstants.LOAD_FAIL, (int)this.getId(), 0, aFailMessage);
 //        FHandle.sendMessage(msgForHandler);
-        getUiActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                getCallbackInterface().onFail(aFailMessage);
-            }
-        });
+        if(null != getUiActivity())
+            getUiActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    CallFail(aFailMessage);
+                }
+            });
+        else CallFail(aFailMessage);
     }
 //    public void SendTimeoutEvent(){
 //        Message msgForHandler = FHandle.obtainMessage(BaseRunnableResourseLoader.LoadResultConstants.LOAD_TIMEOUT, (int)this.getId(), 0);
 //        FHandle.sendMessage(msgForHandler);
 //    }
+    private void CallSuccess(final Map<String, Object> aResultSet){
+        if(null != getCallbackInterface())
+            getCallbackInterface().onSuccess(aResultSet);
+    }
+
+    private void CallFail(final String aFailMessage){
+        if(null != getCallbackInterface())
+            getCallbackInterface().onFail(aFailMessage);
+    }
 }
