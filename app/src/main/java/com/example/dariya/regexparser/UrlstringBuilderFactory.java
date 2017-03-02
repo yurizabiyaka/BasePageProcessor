@@ -10,6 +10,8 @@ public enum UrlstringBuilderFactory {
     public BaseUrlstringBuilder getUrlstringBuilder(final String aTag){
         if("SearchResults".equals(aTag))
             return new ExpenseSearchUrlBuilder();
+        if("Fz44_Test_1".equals(aTag))
+            return new Fz44PrintFormUrlBuilder();
         else
             return null;
     }

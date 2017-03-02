@@ -14,16 +14,20 @@ public enum RuleTreeFactory  {
     public BaseTreeResultTransformer getTransformer(final String aTag){
         if("SearchResults".equals(aTag))
             return new SearchResultsTransformer(LoadRuleTree(aTag));
+        if("Fz44_Test_1".equals(aTag))
+            return new Fz44PrintFormResultTransformer(LoadRuleTree(aTag));
         else
             return new Set1ResultTransformer(LoadRuleTree("Set1"));
     }
 
     //    @Override
-    public TreeNode<BaseParsingRule> LoadRuleTree(final String aName){
-        if("Set1".equals(aName))
+    public TreeNode<BaseParsingRule> LoadRuleTree(final String aTag){
+        if("Set1".equals(aTag))
             return getSet1();
-        if("SearchResults".equals(aName))
+        if("SearchResults".equals(aTag))
             return getSearchResultsTree();
+        if("Fz44_Test_1".equals(aTag))
+            return getFz44RuleTree();
         return new TreeNode<BaseParsingRule>(new RegexFindRule(0,"<html>.*</html>"));
     }
 
@@ -49,6 +53,17 @@ public enum RuleTreeFactory  {
         TreeNode<BaseParsingRule> next23 = next2.addChild(new RegexMatchRule(5,"<a[^>]*?(?=href)href=\"(.*?/[Pp]rint-?[Ff]orm/.*?)\""));
         TreeNode<BaseParsingRule> next24 = next2.addChild(new RegexMatchRule(6,"<a[^>]*?(?=href)href=\"([^\"]*?common-info.*?)\""));
         TreeNode<BaseParsingRule> next25 = next2.addChild(new RegexMatchRule(7,"<a[^>]*?(?=href)href=\"([^\"]*?documents.*?)\""));
+        return root0;
+    }
+
+    public TreeNode<BaseParsingRule> getFz44RuleTree(){
+        TreeNode<BaseParsingRule> root0 = new TreeNode<BaseParsingRule>(new RegexFindRule(0,"<body>.*</body>"));
+        TreeNode<BaseParsingRule> next1 = root0.addChild(new RegexMatchRule(1,"<p\\s+class=\"title\">(.*)</p>\\s*<p\\s+class=\"subtitle\">(.*?)</p>"));
+        TreeNode<BaseParsingRule> next2 = root0.addChild(new RegexMatchRule(2,"<tr\\s*[^>]*?>\\s*<td>\\s*<p\\s+class=\"caption\">(.*?)</p>(.*?)(?=(<tr\\s*[^>]*?>\\s*<td>\\s*<p\\s+class=\"caption\">(.*?)</p>)|</body>)"));
+        TreeNode<BaseParsingRule> next21 = next2.addChild(new RegexFindRule(3,".*<table.*?</table>.*"));
+        TreeNode<BaseParsingRule> next22 = next2.addChild(new RegexFindRule(4,"<tr>.*?</tr>"));
+        TreeNode<BaseParsingRule> next41 = next22.addChild(new RegexFindRule(5,"<td[^>]*?>(.*?)</td>"));
+        TreeNode<BaseParsingRule> next51 = next41.addChild(new RegexFindRule(6,"<p[^>]*>(.*?)</p>"));
         return root0;
     }
 }
