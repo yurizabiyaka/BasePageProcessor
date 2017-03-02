@@ -59,11 +59,12 @@ public enum RuleTreeFactory  {
     public TreeNode<BaseParsingRule> getFz44RuleTree(){
         TreeNode<BaseParsingRule> root0 = new TreeNode<BaseParsingRule>(new RegexFindRule(0,"<body>.*</body>"));
         TreeNode<BaseParsingRule> next1 = root0.addChild(new RegexMatchRule(1,"<p\\s+class=\"title\">(.*)</p>\\s*<p\\s+class=\"subtitle\">(.*?)</p>"));
-        TreeNode<BaseParsingRule> next2 = root0.addChild(new RegexMatchRule(2,"<tr\\s*[^>]*?>\\s*<td>\\s*<p\\s+class=\"caption\">(.*?)</p>(.*?)(?=(<tr\\s*[^>]*?>\\s*<td>\\s*<p\\s+class=\"caption\">(.*?)</p>)|</body>)"));
-        TreeNode<BaseParsingRule> next21 = next2.addChild(new RegexFindRule(3,".*<table.*?</table>.*"));
+        TreeNode<BaseParsingRule> next2 = root0.addChild(new RegexFindRule(2,"<tr\\s*[^>]*?>\\s*<td>\\s*<p\\s+class=\"caption\">.*?</p>.*?(?=<tr\\s*[^>]*?>\\s*<td>\\s*<p\\s+class=\"caption\">.*?</p>|</body>)"));
+        TreeNode<BaseParsingRule> next20 = next2.addChild(new RegexMatchRule(7,"<p\\sclass=\"caption\"><b>(.*?)</b></p>"));
+        TreeNode<BaseParsingRule> next21 = next2.addChild(new RegexFindRule(3,"(<table[^>]*>.*</table>)"));
         TreeNode<BaseParsingRule> next22 = next2.addChild(new RegexFindRule(4,"<tr>.*?</tr>"));
-        TreeNode<BaseParsingRule> next41 = next22.addChild(new RegexFindRule(5,"<td[^>]*?>(.*?)</td>"));
-        TreeNode<BaseParsingRule> next51 = next41.addChild(new RegexFindRule(6,"<p[^>]*>(.*?)</p>"));
+        TreeNode<BaseParsingRule> next41 = next22.addChild(new RegexMatchRule(5,"<td[^>]*?>(.*?)</td>"));
+        TreeNode<BaseParsingRule> next51 = next41.addChild(new RegexMatchRule(6,"(<p[^>]*>|<b>)(.*?)(</p>|</b>)"));
         return root0;
     }
 }

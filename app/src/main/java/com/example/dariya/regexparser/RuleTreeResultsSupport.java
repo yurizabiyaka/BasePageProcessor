@@ -1,5 +1,7 @@
 package com.example.dariya.regexparser;
 
+import android.util.Log;
+
 import com.tree.TreeNode;
 
 import java.util.ArrayList;
@@ -51,15 +53,24 @@ public class RuleTreeResultsSupport {
 
     public static
     TreeNode<Object> ApplyRuleTree(TreeNode<BaseParsingRule> aRuleRoot, TreeNode<Object> aDataRoot){
+        Log.d("RuleTreeResultsSupport","Apply Rule No"+aRuleRoot.data.getIndex()+" to string "+aDataRoot.data);
         TreeNode<Object> ruleRoot = aDataRoot.addChild(Integer.valueOf(aRuleRoot.data.getIndex()));
         // apply self:
         List<String> selfResult = aRuleRoot.data.Apply((String)aDataRoot.data);
+        Log.d("RuleTreeResultsSupport","Got results: "+selfResult.size());
+        for(String oneSelfRes : selfResult){
+            Log.d("RuleTreeResultsSupport"," : "+oneSelfRes);
+        }
+        Log.d("RuleTreeResultsSupport","Now processing child rules on the results:");
         // add the next result for self:
         for(String oneSelfRes : selfResult){
+            if(null == oneSelfRes)
+                continue;
             TreeNode<Object> child = ruleRoot.addChild(oneSelfRes);
             // go deeper:
             // for the child add as a child branches of the rule's children:
             for(TreeNode<BaseParsingRule> childRule : aRuleRoot.children) {
+                Log.d("RuleTreeResultsSupport","result : "+oneSelfRes+" rule id: "+childRule.data.getIndex());
                 // apply the child regex:
                 TreeNode<Object> childRoot = ApplyRuleTree(childRule, child);
                 // add results:
