@@ -81,9 +81,9 @@ public class MainActivity extends AppCompatActivity { //implements Handler.Callb
                 x="hasTable"; sb.append("\n" + x + " : " + map3.get(x));
                 for(Pair<String,String> keyVal : (List<Pair<String,String>>)map3.get("keyValues"))
                     sb.append("\n" + keyVal.first + " : " + keyVal.second)  ;
-                x="table";
-                if(null != map3.get(x))
-                    sb.append("\n" + x + " : " + map3.get(x));
+//                x="table";
+//                if(null != map3.get(x))
+//                    sb.append("\n" + x + " : " + map3.get(x));
                 maMainText.append(sb.toString());
             }
         }
@@ -146,7 +146,20 @@ public class MainActivity extends AppCompatActivity { //implements Handler.Callb
 
             // Loading search results:
 //        String tag = "SearchResults";
-        String tag = "Fz44_Test_1";
+//        String tag = "Fz44_Test_1";
+        String tag = "Fz223_Test_1";
+        if("Fz223_Test_1".equals(tag)) {
+            WebUrlLoader infogetter = new WebUrlLoader(
+                    this
+                    , fz44CallBack
+                    , UrlstringBuilderFactory.INSTANCE.getUrlstringBuilder(tag).Build()
+                    , maClient
+                    , RuleTreeFactory.INSTANCE.getTransformer(tag) // can be NULL
+            );
+            Thread tr = new Thread(infogetter);
+            infogetter.setId(tr.getId());
+            tr.start();
+        }
         if("Fz44_Test_1".equals(tag)) {
             WebUrlLoader infogetter = new WebUrlLoader(
                     this

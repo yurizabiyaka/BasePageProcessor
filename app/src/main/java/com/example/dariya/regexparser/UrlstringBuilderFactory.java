@@ -12,6 +12,8 @@ public enum UrlstringBuilderFactory {
             return new ExpenseSearchUrlBuilder();
         if("Fz44_Test_1".equals(aTag))
             return new Fz44PrintFormUrlBuilder();
+        if("Fz223_Test_1".equals(aTag))
+            return new Fz223PrintFormUrlBuilder();
         else
             return null;
     }
